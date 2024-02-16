@@ -1,0 +1,19 @@
+{
+  "name": "decoupled_express",
+  "version": "0.0.1",
+  "description": "A decoupled version hiding the implementation of my own JSON based implementation of a Database, and one using MongoDB.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "decoupled",
+    "express",
+    "database"
+  ],
+  "author": "Sudhanshu P",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
