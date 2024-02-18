@@ -26,7 +26,10 @@ class Database {
     constructor(dataPath) {
         this.fs = require('fs')
         if (!this.fs.existsSync(dataPath)) {
-            throw new Error("Invalid root folder.")
+            return {
+                status: 500,
+                message: "Invalid root folder of database."
+            }
         }
         this.dataPath = dataPath
     }
@@ -54,7 +57,10 @@ class Database {
     */
     __verifyCollectionName(collectionName) {
         if (collectionName.includes('config')) {
-            throw new Error("Cannot manually create config files.")
+            return {
+                status: 501,
+                message: "Cannot manually create config files."
+            }
         }
 
         // Can only start with a alphabet, can only contain alphabests, number,
@@ -221,7 +227,10 @@ class Database {
         }
         // Meaning the schema file doesn't exist
         catch {
-            throw new Error("No Schema found.")
+            return {
+                status: 500,
+                message: "Schema not found."
+            }
         }
 
         return schema
@@ -235,7 +244,10 @@ class Database {
     createDatabase(databaseName) {
         this.__verifyDatabaseName(databaseName)
         if (this.__databaseExists(databaseName)) {
-            throw new Error("Database with same name already exists")
+            return {
+                status: 503,
+                message: "Database with same name already exists"
+            }
         }
 
         const path = `${this.dataPath}/${databaseName}`
@@ -349,7 +361,7 @@ class Database {
         })
 
         // Parsing empty string throws an ereror 
-        if(data === "") {
+        if (data === "") {
             return data
         }
 

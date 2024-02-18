@@ -1,0 +1,31 @@
+{
+    "id": {
+        "type": "number",
+        "primary": true,
+        "required": true
+    },
+    "title": {
+        "type": "string",
+        "required": true
+    },
+    "description": {
+        "type": "string",
+        "required": true
+    },
+    "price": {
+        "type": "number",
+        "required": true
+    },
+    "brand": {
+        "type": "string",
+        "required": true
+    },
+    "stock": {
+        "type": "number",
+        "required": true
+    },
+    "img": {
+        "type": "string",
+        "required": true
+    }
+}

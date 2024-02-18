@@ -1,0 +1,15 @@
+{
+    "id": {
+        "type": "number",
+        "primary": "true"
+    },
+    "status": {
+        "type": "string"
+    },
+    "product_id": {
+        "type": "number"
+    },
+    "product_quantity": {
+        "type": "number"
+    }
+}
