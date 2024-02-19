@@ -21,7 +21,6 @@ app.get("/", (req, res) => {
 app.post('/product', async (req, res) => {
     // For create product, params contain all the product fields.
     const params = req.body
-    console.log(params)
     if (!params) {
         res.status(451).send("Params not found.")
     }
@@ -67,8 +66,8 @@ app.get('/search', async (req, res) => {
     }
 })
 
-// Updating a Product 
-app.put('/product/:id', (req, res) => {
+// Updating a Product ✅
+app.put('/product/:id', async (req, res) => {
 
     const product_id = req.params.id
     const new_product = req.body
@@ -77,7 +76,7 @@ app.put('/product/:id', (req, res) => {
         res.status(451).message("Invalid parameters")
     }
 
-    const { status, message } = database.putProduct(product_id, new_product)
+    const { status, message } = await database.putProduct(product_id, new_product)
     if (status % 100 === 2) {
         res.status(status).json(message)
     }
@@ -86,13 +85,13 @@ app.put('/product/:id', (req, res) => {
     }
 })
 
-// Deleting a Product 
-app.delete('/product/:id', (req, res) => {
+// Deleting a Product ✅
+app.delete('/product/:id', async (req, res) => {
     if (!+req.params.id) {
         res.status(451).message("Invalid parameters")
     }
 
-    const { status, message } = database.deleteProduct(req.params)
+    const { status, message } = await database.deleteProduct(req.params)
     if (status % 100 === 2) {
         res.status(status).json(message)
     }
@@ -101,13 +100,14 @@ app.delete('/product/:id', (req, res) => {
     }
 })
 
-// Creating an Order and Updating a Product 
-app.post('/checkout', (req, res) => {
+// Creating an Order and Updating a Product ✅
+app.post('/checkout', async (req, res) => {
     if (!req.body.id || !req.body.quantity) {
         res.status(451).send("Invalid Parameters")
     }
 
-    const { status, message } = database.checkout(req.body)
+    const { status, message } = await database.checkout(req.body)
+
     if (status % 100 === 2) {
         res.status(status).json(message)
     }
@@ -116,13 +116,13 @@ app.post('/checkout', (req, res) => {
     }
 })
 
-// Reading an Order (Status) 
-app.get('/order/:id', (req, res) => {
+// Reading an Order (Status) ✅
+app.get('/order/:id', async (req, res) => {
     if (!+req.params.id) {
         res.status(451).send("Invalid Parameters")
     }
 
-    const { status, message } = database.getOrder(req.params)
+    const { status, message } = await database.getOrder(req.params)
 
     if (status % 100 === 2) {
         res.status(status).json(message)
@@ -132,13 +132,13 @@ app.get('/order/:id', (req, res) => {
     }
 })
 
-// Deleting an order 
-app.delete('/cancel', (req, res) => {
+// Deleting an order ✅
+app.delete('/cancel', async (req, res) => {
     if (!req.body.id) {
         res.status(451).send("Invalid parameter")
     }
 
-    const { status, message } = database.deleteOrder(req.body)
+    const { status, message } = await database.deleteOrder(req.body)
 
     if (status % 100 === 2) {
         res.status(status).json(message)

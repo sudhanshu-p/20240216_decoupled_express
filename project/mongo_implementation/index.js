@@ -63,7 +63,7 @@ class ecommerceDatabase {
     }
 
     async putProduct(product_id, new_product) {
-        const product = await Product.findOne({ id: params.id })
+        const product = await Product.findOne({ id: product_id })
         if (!product) {
             return {
                 status: 404,
@@ -97,7 +97,6 @@ class ecommerceDatabase {
     }
 
     async checkout(params) {
-
         const product = await Product.findOne({ id: params.id })
         if (!product) {
             return {
@@ -114,22 +113,25 @@ class ecommerceDatabase {
         }
 
         product.stock -= params.quantity
-        product.save()
+        await product.save()
 
+        console.log("Product saved successfully.")
 
         // Create a new Order
         const lastOrder = await Order.find({})
             .sort({ _id: -1 })
             .limit(1)
 
+
         const newOrder = new Order({
-            id: lastOrder.id + 1,
+            id: lastOrder[0].id + 1,
             status: "Placed",
             product_id: params.id,
             product_quantity: params.quantity
         })
 
-        newOrder.save()
+        await newOrder.save()
+        console.log("Order created successfully.")
         return {
             status: 201,
             message: newOrder
