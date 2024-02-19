@@ -143,16 +143,22 @@ class Database {
      * @param {Object} objectToBeValidated - The object that is to be validated
      */
     __validateObject(schemaToValidateAgainst, objectToBeValidated) {
+        console.log(schemaToValidateAgainst)
 
         // Check if the object given is an object
-        if (typeof objectToBeValidated !== "object"
-            || Array.isArray(objectToBeValidated)) {
-            return `Data must be an object`
+        if (typeof objectToBeValidated !== "object") {
+            return {
+                status: 453,
+                message: `Data must be an object`
+            }
         }
 
         // Check if at least one property is defined
         if (Object.keys(objectToBeValidated).length === 0) {
-            return 'Object must have at least one property.'
+            return {
+                status: 453,
+                message: `Object must have at least one property.`
+            }
         }
 
         // Get the primary key of the schema
@@ -162,7 +168,10 @@ class Database {
 
         // Check if Object has primary key
         if (!objectToBeValidated.hasOwnProperty(primaryKey)) {
-            return `Object must have the ${primaryKey} field`
+            return {
+                status: 453,
+                message: `Object must have the ${primaryKey} field`
+            }
         }
 
         // Get all the properties that are required
@@ -172,7 +181,10 @@ class Database {
         // Check if object has all the required properties
         for (const property of requiredProperties) {
             if (!objectToBeValidated.hasOwnProperty(property)) {
-                return `${property} is a must have property.`
+                return {
+                    status: 453,
+                    message: `${property} is a must have property.`
+                }
             }
         }
 
@@ -181,7 +193,10 @@ class Database {
 
             // Check if the property is defined in schema
             if (!schemaToValidateAgainst.hasOwnProperty(propName)) {
-                return `Invalid property ${propName}`
+                return {
+                    status: 453,
+                    message: `Invalid property ${propName}`
+                }
             }
 
             // Get the description of this property from schema
@@ -189,10 +204,12 @@ class Database {
 
             // Validate type
             if (typeof propValue !== property.type) {
-                return `Type mismatch for ${propName}. Expected ${property.type}`
+                return {
+                    status: 453,
+                    message: `Type mismatch for ${propName}. Expected ${property.type}`
+                }
             }
         }
-
         return true
     }
 
@@ -228,7 +245,7 @@ class Database {
         // Meaning the schema file doesn't exist
         catch {
             return {
-                status: 500,
+                status: 502,
                 message: "Schema not found."
             }
         }
@@ -239,7 +256,6 @@ class Database {
     // DATABASE CRUD OPERATIONS
     /** Create a new folder (Database) of the given name
      * @param {String} databaseName - Name of database to be created
-     * @throws {Error} When a database with the same name already exists
      */
     createDatabase(databaseName) {
         this.__verifyDatabaseName(databaseName)
@@ -262,7 +278,10 @@ class Database {
     */
     connect(databaseName) {
         if (!this.__databaseExists(databaseName)) {
-            throw new Error("Invalid Database.")
+            return {
+                status: 504,
+                message: "Database doesn't exist"
+            }
         }
 
         this.currentDatabase = `${this.dataPath}/${databaseName}`
@@ -275,7 +294,10 @@ class Database {
     readDatabase() {
         console.log(this.currentDatabase)
         if (!this.currentDatabase) {
-            throw new Error("Cannot read current database")
+            return {
+                status: 504,
+                message: "Database doesn't exist"
+            }
         }
 
         const folders = this.fs.readdirSync(this.currentDatabase)
@@ -287,26 +309,39 @@ class Database {
     */
     renameDatabase(newDatabaseName) {
         if (!this.currentDatabase) {
-            throw new Error("Cannot read current database")
+            return {
+                status: 504,
+                message: "Database doesn't exist"
+            }
         }
         this.__verifyDatabaseName(newDatabaseName)
         if (this.__databaseExists(newDatabaseName)) {
-            throw new Error("Database with same name already exists")
+            return {
+                status: 503,
+                message: "Database with same name already exists"
+            }
         }
 
         this.fs.renameSync(`${this.currentDatabase}`, `${this.dataPath}/${newDatabaseName}`)
         this.currentDatabase = `${this.dataPath}/${newDatabaseName}`
+        return true
     }
 
     /** Safe delete the current database (Only delete if empty) */
     deleteDatabase() {
         if (!this.currentDatabase) {
-            throw new Error("Cannot read current database")
+            return {
+                status: 504,
+                message: "Database doesn't exist"
+            }
         }
 
         const files = this.fs.readdirSync(`${this.currentDatabase}`)
         if (files.length > 0) {
-            throw new Error('Database is not empty')
+            return {
+                status: 505,
+                message: "Database is not empty"
+            }
         }
 
         this.fs.rmdirSync(`${this.currentDatabase}`)
@@ -317,7 +352,10 @@ class Database {
     /** Forcefully deletes the current database (RISKY!) */
     forceDeleteDatabase() {
         if (!this.currentDatabase) {
-            throw new Error("Cannot read current database")
+            return {
+                status: 505,
+                message: "Database is not empty"
+            }
         }
 
         this.fs.rmSync(`${this.currentDatabase}`, { recursive: true })
@@ -332,11 +370,15 @@ class Database {
     createCollection(collectionName) {
         this.__verifyCollectionName(collectionName)
         if (this.__collectionExists(collectionName)) {
-            throw new Error("Collection by the same name already exists")
+            return {
+                status: 513,
+                message: "Collection with same name already exists"
+            }
         }
 
         const path = `${this.currentDatabase}/${collectionName}.json`
         this.fs.writeFileSync(`${path}`, '')
+        return true
     }
 
     /** Reads the entire content of a collection 
@@ -346,7 +388,10 @@ class Database {
         this.__verifyCollectionName(collectionName)
 
         if (!this.__collectionExists(collectionName)) {
-            throw new Error("Collection to be read doesn't exist")
+            return {
+                status: 514,
+                message: "Invalid Collection"
+            }
         }
 
         const path = `${this.currentDatabase}/${collectionName}.json`
@@ -376,11 +421,17 @@ class Database {
         this.__verifyCollectionName(newCollectionName)
 
         if (!this.__collectionExists(oldCollectionName)) {
-            throw new Error("Collection to be renamed doesn't exist")
+            return {
+                status: 514,
+                message: "Invalid Collection"
+            }
         }
 
         if (this.__collectionExists(newCollectionName)) {
-            throw new Error("A collection by the new name already exists")
+            return {
+                status: 513,
+                message: "Collection with same name already exists"
+            }
         }
 
         this.fs.renameSync(`${this.currentDatabase}/${oldCollectionName}.json`,
@@ -403,12 +454,18 @@ class Database {
         this.__verifyCollectionName(collectionName)
 
         if (!this.__collectionExists(collectionName)) {
-            throw new Error("Collection to be deleted doesn't exist")
+            return {
+                status: 514,
+                message: "Invalid Collection"
+            }
         }
 
         // If the file is empty, delete it.
         if (!this.readCollection(collectionName) === "") {
-            throw new Error("Collection to be deleted is not empty!")
+            return {
+                status: 515,
+                message: "Collection is not empty"
+            }
         }
 
         this.fs.rmSync(`${this.currentDatabase}/${collectionName}.json`)
@@ -426,7 +483,10 @@ class Database {
     forceDeleteCollection(collectionName) {
         this.__verifyCollectionName(collectionName)
         if (!this.__collectionExists(collectionName)) {
-            throw new Error("Collection to be deleted doesn't exist")
+            return {
+                status: 514,
+                message: "Invalid Collection"
+            }
         }
         this.fs.rmSync(`${this.currentDatabase}/${collectionName}.json`)
 
@@ -445,7 +505,7 @@ class Database {
     setSchema(collectionName, schema) {
         const schemaResult = this.__validateSchema(schema)
         if (schemaResult !== true) {
-            throw new Error(schemaResult)
+            return schemaResult
         }
 
         // Validate the collectionName
@@ -472,9 +532,12 @@ class Database {
         this.__collectionExists(collectionName)
 
         // Check if the schema for that collection exists
-        if (!this.fs.existsSync(
-            `${this.currentDatabase}/${collectionName}-config.json`)) {
-            throw new Error("Must first define schema for this collection")
+        if (!this.__getSchema(collectionName)) {
+
+            return {
+                status: 502,
+                message: "Schema not found."
+            }
         }
 
         // Fetch and parse the schema.
@@ -482,7 +545,7 @@ class Database {
 
         // Because conditional operators also take strings as truthy values
         if (this.__validateObject(schema, objectToBeAdded) !== true) {
-            throw new Error(this.__validateObject(schema, objectToBeAdded))
+            return this.__validateObject(schema, objectToBeAdded)
         }
 
         const pastData = this.readCollection(collectionName)
@@ -517,7 +580,10 @@ class Database {
         if (jsonData.find((record) =>
             record[primaryKey] === objectToBeAdded[primaryKey]
         ) !== undefined) {
-            throw new Error(`Record with same primary key already exists`)
+            return {
+                status: 400,
+                message: "Record with same primary key already exists"
+            }
         }
 
         jsonData.push(objectToBeAdded)
@@ -525,6 +591,7 @@ class Database {
             `${this.currentDatabase}/${collectionName}.json`,
             JSON.stringify(jsonData)
         )
+        return true
     }
 
     /** Read the record with same primaryAttribute as the param
@@ -569,18 +636,26 @@ class Database {
 
         // If the new data is trying to change primary key, reject it.
         if (primaryKey in newObjectData) {
-            return `Cannot change primary key`
+            return {
+                status: 504,
+                message: "Cannot change primary key"
+            }
         }
 
         const result = allData.findIndex(
             (object) => object[primaryKey] === primaryAttribute)
 
         if (result === -1) {
-            return `404: Data Not found`
+            return {
+                status: 404,
+                message: "Product not found"
+            }
         }
 
         // Update the data
         allData[result] = { ...allData[result], ...newObjectData }
+
+        console.log(allData[result])
 
         // Make sure the new data is Schema compliant
         const objectValidated = this.__validateObject(schema, allData[result])
@@ -611,7 +686,10 @@ class Database {
             (object) => object[primaryKey] === primaryAttribute)
 
         if (result === -1) {
-            return `404: Data Not found`
+            return {
+                status: 404,
+                message: "Product Not found"
+            }
         }
 
         allData.splice(result, 1)
@@ -622,7 +700,10 @@ class Database {
             JSON.stringify(allData)
         )
 
-        return `Deletion successful`
+        return {
+            status: 200,
+            message: "Product successfully deleted"
+        }
     }
 }
 

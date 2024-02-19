@@ -34,53 +34,237 @@ class ecommerceDatabase {
      * @returns {object} {status, message}
      */
     postProduct(params) {
-        try {
+        // For generating Product ID
+        const products = this.db.readCollection("product-collection")
+        const last_id = products[products.length - 1].id
 
+        params.id = last_id + 1
+        const result = this.db.createRecord("product-collection", params)
+
+        if (result === true) {
+            return {
+                status: 201,
+                message: this.db.readRecord("product-collection", params.id)
+            }
         }
-        catch (err) {
-            console.log(err)
-        }
-        // return { status, message }
+
+        return { status: result.status, message: result.message }
     }
 
     getProduct(params) {
+        const result = this.db.readRecord("product-collection", +params.id)
 
-        return { status, message }
+        if (result.status) {
+            return {
+                status: result.status,
+                message: result.message
+            }
+        }
+        if (!result) {
+            return {
+                status: 404,
+                message: "Product not found"
+            }
+        }
+
+        return {
+            status: 200,
+            message: result
+        }
     }
 
     searchProduct(params) {
+        const search_string = params.search_string
 
-        return { status, message }
+        const results = this.db.readCollection("product-collection")
+
+        // console.log(JSON.parse(results))
+
+        const similarResults = {}
+        for (const product of results) {
+            // More presence of search_string in product's meta => more relevant
+            let count = 0
+
+            if (product["title"].toLowerCase()
+                .includes(search_string.toLowerCase())) {
+                count += 1
+            }
+            if (product["description"].toLowerCase()
+                .includes(search_string.toLowerCase())) {
+                count += 1
+            }
+            if (product["brand"].toLowerCase()
+                .includes(search_string.toLowerCase())) {
+                count += 1
+            }
+
+            if (count) {
+                similarResults[product["id"]] = count
+            }
+        }
+
+        if (Object.keys(similarResults).length === 0) {
+            return {
+                status: 404,
+                message: "No results"
+            }
+        }
+
+        // Sorting the results based on their frequency
+        const sortedResults = Object.keys(similarResults)
+            .sort((a, b) => similarResults[b] - similarResults[a]);
+
+        const sortedData = []
+        for (const productId of sortedResults) {
+            const searchedProduct = results
+                .filter((product) => product["id"] == productId)
+            sortedData.push(searchedProduct[0])
+        }
+
+        return {
+            status: 200,
+            message: sortedData
+        }
     }
 
-    putProduct(params) {
+    putProduct(product_id, new_product) {
+        const result = this.db.updateRecord("product-collection", +product_id, new_product)
+        console.log(result)
 
-        return { status, message }
+        if (result.status) {
+            return {
+                status: result.status,
+                message: result.message
+            }
+        }
+        if (!result) {
+            return {
+                status: 404,
+                message: "Product not found"
+            }
+        }
+
+        return {
+            status: 202,
+            message: this.db.readRecord("product-collection", +product_id)
+        }
     }
 
     deleteProduct(params) {
+        const product_id = +params.id
 
-        return { status, message }
+        const result = this.db.deleteRecord("product-collection", product_id)
+        return {
+            status: result.status,
+            message: result.message
+        }
     }
 
     checkout(params) {
+        const product_id = +params.id
+        const product_quantity = +params.quantity
 
-        return { status, message }
+        const product = this.db.readRecord("product-collection", product_id)
+        if (!product) {
+            return {
+                status: 404,
+                message: "Invalid Product ID"
+            }
+        }
+
+        if (product_quantity > product.stock) {
+            return {
+                status: 452,
+                message: "Product Quantity is too high."
+            }
+        }
+
+        this.db.updateRecord("product-collection", product_id,
+            { "stock": +product.stock - +product_quantity })
+
+        // Create a new order.
+        // To create a new order ID, we need the list of order
+        const ordersList = this.db.readCollection("order-collection")
+
+        const orderData = {
+            "id": ordersList.length + 1,
+            "status": "Placed",
+            "product_id": product_id,
+            "product_quantity": product_quantity
+        }
+
+        this.db.createRecord("order-collection", orderData)
+
+        return {
+            status: 201,
+            message: "Checkout successfull"
+        }
     }
 
     getOrder(params) {
+        const order_id = params.id
+        const result = this.db.readRecord("order-collection", +order_id)
+        
+        if (result.message) {
+            return {
+                status: result.status,
+                message: result.message
+            }
+        }
 
-        return { status, message }
-    }
-
-    putOrder(params) {
-
-        return { status, message }
+        if (!result) {
+            return {
+                status: 404,
+                message: "Order not found"
+            }
+        }
+        console.log(result)
+        return { status: 200, message: result }
     }
 
     deleteOrder(params) {
+        const order_id = params.id
 
-        return { status, message }
+        const order = this.db.readRecord("order-collection", +order_id)
+
+        if (!order) {
+            return {
+                status: 404,
+                message: "No Order with this ID was found!"
+            }
+        }
+
+        if (order.status === "Cancelled") {
+            return {
+                status: 452,
+                message: "Order already cancelled"
+            }
+        }
+
+        const product_id = +order.product_id
+        const product_quantity = +order.product_quantity
+
+        this.db.updateRecord("order-collection", +order_id,
+            { status: "Cancelled" }
+        )
+
+        const product = this.db.readRecord("product-collection", product_id)
+
+        if (!product) {
+            return {
+                status: 251,
+                message: "Product with that ID has been deleted."
+            }
+        }
+
+        this.db.updateRecord("product-collection", product_id, {
+            "stock": product.stock + product_quantity
+        })
+
+        return {
+            status: 201,
+            message: "Deletion successful"
+        }
     }
 }
 

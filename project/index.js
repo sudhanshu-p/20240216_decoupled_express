@@ -2,29 +2,48 @@
 const ecommerceDatabase = require("./json_implementation")
 // const ecommerceDatabase = require("./mongo_implementation")
 
+const database = new ecommerceDatabase()
+
 // Setting up external dependencies
 const express = require("express")
+const bodyParser = require("body-parser")
+
 const app = express()
+app.use(bodyParser.json())
 const PORT = 3000
+
 
 app.get("/", (req, res) => {
     res.status(200).json("Welcome to Express Commerce")
 })
 
-// Creating a Product
+// Creating a Product ✅
 app.post('/product', (req, res) => {
-    const { status, message } = database.putProduct(req)
+    // For create product, params contain all the product fields.
+    const params = req.body
+    if (!params) {
+        res.status(451).send("Params not found.")
+    }
+
+    const { status, message } = database.postProduct(params)
+
     if (status % 100 === 2) {
         res.status(status).json(message)
     }
+    // Rest indicate errors
     else {
         res.status(status).send(message)
     }
 })
 
-// Reading a Product
+// Reading a Product ✅
 app.get('/product/:id', (req, res) => {
-    const { status, message } = database.putProduct(req)
+    if (!req.params.id) {
+        res.status(451).send("Params not found.")
+    }
+
+    const { status, message } = database.getProduct(req.params)
+
     if (status % 100 === 2) {
         res.status(status).json(message)
     }
@@ -33,9 +52,12 @@ app.get('/product/:id', (req, res) => {
     }
 })
 
-// Read all similar products
+// Read all similar products ✅
 app.get('/search', (req, res) => {
-    const { status, message } = database.searchProduct(req)
+    if (!req.query.search_string) {
+        res.status(451).send("Invalid parameters")
+    }
+    const { status, message } = database.searchProduct(req.query)
     if (status % 100 === 2) {
         res.status(status).json(message)
     }
@@ -44,9 +66,17 @@ app.get('/search', (req, res) => {
     }
 })
 
-// Updating a Product
+// Updating a Product ✅
 app.put('/product/:id', (req, res) => {
-    const { status, message } = database.putProduct(req)
+
+    const product_id = req.params.id
+    const new_product = req.body
+
+    if (!product_id || !new_product) {
+        res.status(451).message("Invalid parameters")
+    }
+
+    const { status, message } = database.putProduct(product_id, new_product)
     if (status % 100 === 2) {
         res.status(status).json(message)
     }
@@ -55,9 +85,13 @@ app.put('/product/:id', (req, res) => {
     }
 })
 
-// Deleting a Product
+// Deleting a Product ✅
 app.delete('/product/:id', (req, res) => {
-    const { status, message } = database.deleteProduct(req)
+    if (!+req.params.id) {
+        res.status(451).message("Invalid parameters")
+    }
+
+    const { status, message } = database.deleteProduct(req.params)
     if (status % 100 === 2) {
         res.status(status).json(message)
     }
@@ -66,9 +100,13 @@ app.delete('/product/:id', (req, res) => {
     }
 })
 
-// Creating an Order and Updating a Product
+// Creating an Order and Updating a Product ✅
 app.post('/checkout', (req, res) => {
-    const { status, message } = database.checkout(req)
+    if (!req.body.id || !req.body.quantity) {
+        res.status(451).send("Invalid Parameters")
+    }
+
+    const { status, message } = database.checkout(req.body)
     if (status % 100 === 2) {
         res.status(status).json(message)
     }
@@ -77,9 +115,14 @@ app.post('/checkout', (req, res) => {
     }
 })
 
-// Reading an Order (Status)
+// Reading an Order (Status) ✅
 app.get('/order/:id', (req, res) => {
-    const { status, message } = database.getOrder(req)
+    if(!+req.params.id) {
+        res.status(451).send("Invalid Parameters")
+    }
+
+    const { status, message } = database.getOrder(req.params)
+
     if (status % 100 === 2) {
         res.status(status).json(message)
     }
@@ -88,20 +131,14 @@ app.get('/order/:id', (req, res) => {
     }
 })
 
-// Updating an order (status)
-app.put('/order', (req, res) => {
-    const { status, message } = database.putOrder(req)
-    if (status % 100 === 2) {
-        res.status(status).json(message)
+// Deleting an order ✅
+app.delete('/cancel', (req, res) => {
+    if (!req.body.id) {
+        res.status(451).send("Invalid parameter")
     }
-    else {
-        res.status(status).send(message)
-    }
-})
 
-// Deleting an order
-app.delete('/order', (req, res) => {
-    const { status, message } = database.deleteProduct(req)
+    const { status, message } = database.deleteOrder(req.body)
+
     if (status % 100 === 2) {
         res.status(status).json(message)
     }
