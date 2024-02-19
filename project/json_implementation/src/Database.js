@@ -143,7 +143,6 @@ class Database {
      * @param {Object} objectToBeValidated - The object that is to be validated
      */
     __validateObject(schemaToValidateAgainst, objectToBeValidated) {
-        console.log(schemaToValidateAgainst)
 
         // Check if the object given is an object
         if (typeof objectToBeValidated !== "object") {
@@ -292,7 +291,6 @@ class Database {
      * @returns {Array<String>} List of all collections in this database
     */
     readDatabase() {
-        console.log(this.currentDatabase)
         if (!this.currentDatabase) {
             return {
                 status: 504,
@@ -654,8 +652,6 @@ class Database {
 
         // Update the data
         allData[result] = { ...allData[result], ...newObjectData }
-
-        console.log(allData[result])
 
         // Make sure the new data is Schema compliant
         const objectValidated = this.__validateObject(schema, allData[result])

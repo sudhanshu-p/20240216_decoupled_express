@@ -86,8 +86,6 @@ class ecommerceDatabase {
 
         const results = this.db.readCollection("product-collection")
 
-        // console.log(JSON.parse(results))
-
         const similarResults = {}
         for (const product of results) {
             // More presence of search_string in product's meta => more relevant
@@ -141,8 +139,6 @@ class ecommerceDatabase {
      */
     putProduct(product_id, new_product) {
         const result = this.db.updateRecord("product-collection", +product_id, new_product)
-        console.log(result)
-
         if (result.status) {
             return {
                 status: result.status,
@@ -242,7 +238,6 @@ class ecommerceDatabase {
                 message: "Order not found"
             }
         }
-        console.log(result)
         return { status: 200, message: result }
     }
 
