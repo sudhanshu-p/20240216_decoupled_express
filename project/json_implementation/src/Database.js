@@ -233,7 +233,7 @@ class Database {
         try {
             schema = JSON.parse(
                 this.fs.readFileSync(
-                    `${this.currentDatabase}/${collectionName}-config.json`,
+                    `${this.currentDatabase}/${collectionName}.config.json`,
                     {
                         encoding: 'utf8',
                         flag: 'r'
@@ -436,10 +436,10 @@ class Database {
             `${this.currentDatabase}/${newCollectionName}.json`)
 
         // If the config file exists, rename that too.
-        if (this.__collectionExists(`${oldCollectionName}-config`)) {
+        if (this.__collectionExists(`${oldCollectionName}.config`)) {
             this.fs.renameSync(
-                `${this.currentDatabase}/${oldCollectionName}-config.json`,
-                `${this.currentDatabase}/${newCollectionName}-config.json`
+                `${this.currentDatabase}/${oldCollectionName}.config.json`,
+                `${this.currentDatabase}/${newCollectionName}.config.json`
             )
         }
         return true
@@ -468,9 +468,9 @@ class Database {
 
         this.fs.rmSync(`${this.currentDatabase}/${collectionName}.json`)
         // If the config file exists, delete that too.
-        if (this.__collectionExists(`${collectionName}-config`)) {
+        if (this.__collectionExists(`${collectionName}.config`)) {
             this.fs.rmSync(
-                `${this.currentDatabase}/${collectionName}-config.json`
+                `${this.currentDatabase}/${collectionName}.config.json`
             )
         }
     }
@@ -489,9 +489,9 @@ class Database {
         this.fs.rmSync(`${this.currentDatabase}/${collectionName}.json`)
 
         // If the config file exists, delete that too.
-        if (this.__collectionExists(`${collectionName}-config`)) {
+        if (this.__collectionExists(`${collectionName}.config`)) {
             this.fs.rmSync(
-                `${this.currentDatabase}/${collectionName}-config.json`
+                `${this.currentDatabase}/${collectionName}.config.json`
             )
         }
     }
@@ -513,9 +513,9 @@ class Database {
         // in that case, it will be overwritten, which is expected behaviour
         // of setSchema
 
-        // Create a new collectionName-config.json that stores the schema
+        // Create a new collectionName.config.json that stores the schema
         this.fs.writeFileSync(
-            `${this.currentDatabase}/${collectionName}-config.json`,
+            `${this.currentDatabase}/${collectionName}.config.json`,
             JSON.stringify(schema))
     }
 

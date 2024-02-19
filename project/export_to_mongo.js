@@ -2,9 +2,10 @@ const mongoose = require("mongoose")
 const Database = require("./json_implementation/src")
 const Product = require("./mongo_implementation/models/Product")
 const Order = require("./mongo_implementation/models/Order")
+require("dotenv").config()
 
 async function exportToMongo() {
-    await mongoose.connect("mongodb+srv://root:root@mycluster.qa9j41l.mongodb.net/")
+    await mongoose.connect(process.env.MONGO_URI)
         .then(() => console.log("Connected to MongoDB Database!"))
 
     const db = new Database("./database")

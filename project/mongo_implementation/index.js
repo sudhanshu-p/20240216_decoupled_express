@@ -7,6 +7,10 @@ const Order = require("./models/Order.js")
 const Database = require("./db.js")
 
 class ecommerceDatabase {
+    /** Create a new entry in the product collection.
+     * @param {object} params The product to be inserted's metadata
+     * @returns {object} {status, message}
+     */
     async postProduct(params) {
         const lastProduct = await Product.find({})
             .sort({ _id: -1 })
@@ -23,9 +27,13 @@ class ecommerceDatabase {
         const newProduct = new Product(params)
         await newProduct.save()
 
-        return { status: 200, message: "Product saved successfully" }
+        return { status: 201, message: newProduct }
     }
 
+    /** Get a product by it's ID
+     * @param {object} params The product to be fetched's ID
+     * @returns {object} {status, message}
+     */
     async getProduct(params) {
 
         const product = await Product.findOne({ id: params.id })
@@ -42,6 +50,10 @@ class ecommerceDatabase {
         }
     }
 
+    /** Search the database for a string
+     * @param {object} params An object containt search_string key
+     * @returns {object} {status, message}
+     */
     async searchProduct(params) {
         const search_string = params.search_string
 
@@ -62,6 +74,10 @@ class ecommerceDatabase {
         }
     }
 
+    /** Update an Product
+     * @param {object} params The new data of the product
+     * @returns {object} {status, message}
+     */
     async putProduct(product_id, new_product) {
         const product = await Product.findOne({ id: product_id })
         if (!product) {
@@ -79,6 +95,10 @@ class ecommerceDatabase {
         }
     }
 
+    /** Delete an entry from the product collection.
+     * @param {object} params The product to be deleted's ID
+     * @returns {object} {status, message}
+     */
     async deleteProduct(params) {
         const product = await Product.findOne({ id: params.id })
         if (!product) {
@@ -96,6 +116,10 @@ class ecommerceDatabase {
         }
     }
 
+    /** Creates a new Order and updates inventory stock.
+     * @param {object} params An object containing keys id and quantity
+     * @returns {object} {status, message}
+     */
     async checkout(params) {
         const product = await Product.findOne({ id: params.id })
         if (!product) {
@@ -115,8 +139,6 @@ class ecommerceDatabase {
         product.stock -= params.quantity
         await product.save()
 
-        console.log("Product saved successfully.")
-
         // Create a new Order
         const lastOrder = await Order.find({})
             .sort({ _id: -1 })
@@ -131,13 +153,16 @@ class ecommerceDatabase {
         })
 
         await newOrder.save()
-        console.log("Order created successfully.")
         return {
             status: 201,
             message: newOrder
         }
     }
 
+    /** Get an Order by its ID
+     * @param {object} params Object containing ID of order
+     * @returns {object} {status, message}
+     */
     async getOrder(params) {
 
         const order_details = await Order.findOne({ id: params.id })
@@ -155,6 +180,10 @@ class ecommerceDatabase {
         }
     }
 
+    /** Delete an order by it's ID. (and update stock to reflect same)
+     * @param {object} params The order to be deleted's ID
+     * @returns {object} {status, message}
+     */
     async deleteOrder(params) {
         const order = await Order.findOne({ id: params.id })
         if (!order) {
