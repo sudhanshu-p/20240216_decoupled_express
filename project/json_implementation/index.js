@@ -51,6 +51,10 @@ class ecommerceDatabase {
         return { status: result.status, message: result.message }
     }
 
+    /** Get a product by it's ID
+     * @param {object} params The product to be fetched's ID
+     * @returns {object} {status, message}
+     */
     getProduct(params) {
         const result = this.db.readRecord("product-collection", +params.id)
 
@@ -73,6 +77,10 @@ class ecommerceDatabase {
         }
     }
 
+    /** Search the database for a string
+     * @param {object} params An object containt search_string key
+     * @returns {object} {status, message}
+     */
     searchProduct(params) {
         const search_string = params.search_string
 
@@ -127,6 +135,10 @@ class ecommerceDatabase {
         }
     }
 
+    /** Update an Product
+     * @param {object} params The new data of the product
+     * @returns {object} {status, message}
+     */
     putProduct(product_id, new_product) {
         const result = this.db.updateRecord("product-collection", +product_id, new_product)
         console.log(result)
@@ -150,6 +162,10 @@ class ecommerceDatabase {
         }
     }
 
+    /** Delete an entry from the product collection.
+     * @param {object} params The product to be deleted's ID
+     * @returns {object} {status, message}
+     */
     deleteProduct(params) {
         const product_id = +params.id
 
@@ -160,6 +176,10 @@ class ecommerceDatabase {
         }
     }
 
+    /** Creates a new Order and updates inventory stock.
+     * @param {object} params An object containing keys id and quantity
+     * @returns {object} {status, message}
+     */
     checkout(params) {
         const product_id = +params.id
         const product_quantity = +params.quantity
@@ -201,6 +221,10 @@ class ecommerceDatabase {
         }
     }
 
+    /** Get an Order by its ID
+     * @param {object} params Object containing ID of order
+     * @returns {object} {status, message}
+     */
     getOrder(params) {
         const order_id = params.id
         const result = this.db.readRecord("order-collection", +order_id)
@@ -222,6 +246,10 @@ class ecommerceDatabase {
         return { status: 200, message: result }
     }
 
+    /** Delete an order by it's ID. (and update stock to reflect same)
+     * @param {object} params The order to be deleted's ID
+     * @returns {object} {status, message}
+     */
     deleteOrder(params) {
         const order_id = params.id
 

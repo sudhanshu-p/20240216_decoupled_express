@@ -1,0 +1,147 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "test-decoupled-express",
+    "dateExported": "2024-02-19T03:07:51.151Z",
+    "version": "1.1",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "b21af985-9e2a-4433-883b-34da97221b18",
+            "colId": "13ca2229-dacd-49df-8a9a-1c0ae84a7e89",
+            "containerId": "",
+            "name": "Search Product",
+            "url": "http://localhost:3000/search?search_string=apple",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2024-02-18T23:50:59.407Z",
+            "modified": "2024-02-18T23:50:59.407Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "search_string",
+                    "value": "apple",
+                    "isPath": false
+                }
+            ],
+            "tests": []
+        },
+        {
+            "_id": "efeffb89-8254-4f2e-968a-3cbd0db1e1b1",
+            "colId": "13ca2229-dacd-49df-8a9a-1c0ae84a7e89",
+            "containerId": "",
+            "name": "Checkout",
+            "url": "http://localhost:3000/checkout",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2024-02-19T00:17:08.478Z",
+            "modified": "2024-02-19T00:17:08.478Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"id\": 2,\n  \"quantity\": 1\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "1724ad00-89b1-4309-a76d-5a03df463148",
+            "colId": "13ca2229-dacd-49df-8a9a-1c0ae84a7e89",
+            "containerId": "",
+            "name": "Cancel order",
+            "url": "http://localhost:3000/cancel",
+            "method": "DELETE",
+            "sortNum": 30000,
+            "created": "2024-02-19T00:20:17.482Z",
+            "modified": "2024-02-19T00:20:17.482Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"id\": 2\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "d9afcfa4-cce0-4c07-97ae-48c03e5f4128",
+            "colId": "13ca2229-dacd-49df-8a9a-1c0ae84a7e89",
+            "containerId": "",
+            "name": "Post Product",
+            "url": "http://localhost:3000/product",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2024-02-19T00:48:06.846Z",
+            "modified": "2024-02-19T00:48:06.846Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"title\": \"iPhone 9\",\n  \"description\": \"An apple mobile which is nothing like apple\",\n  \"price\": 549,\n  \"stock\": 94,\n  \"brand\": \"Apple\",\n  \"img\": \"https://cdn.dummyjson.com/product-images/1/thumbnail.jpg\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "70cabcb3-7b17-450c-ba67-bdc135f3a858",
+            "colId": "13ca2229-dacd-49df-8a9a-1c0ae84a7e89",
+            "containerId": "",
+            "name": "Get Product",
+            "url": "http://localhost:3000/product/1",
+            "method": "GET",
+            "sortNum": 50000,
+            "created": "2024-02-19T00:53:31.175Z",
+            "modified": "2024-02-19T02:33:29.338Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "f8a4cbe4-857b-4be0-90ed-cf3295672875",
+            "colId": "13ca2229-dacd-49df-8a9a-1c0ae84a7e89",
+            "containerId": "",
+            "name": "Update product",
+            "url": "http://localhost:3000/product/30",
+            "method": "PUT",
+            "sortNum": 60000,
+            "created": "2024-02-19T01:01:46.607Z",
+            "modified": "2024-02-19T01:01:46.607Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"price\": 20\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "dd563646-05bd-425a-a72f-56c83686c48e",
+            "colId": "13ca2229-dacd-49df-8a9a-1c0ae84a7e89",
+            "containerId": "",
+            "name": "Delete Product",
+            "url": "http://localhost:3000/product/30",
+            "method": "DELETE",
+            "sortNum": 70000,
+            "created": "2024-02-19T01:06:24.316Z",
+            "modified": "2024-02-19T01:06:34.410Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "60f790bc-caed-4170-b718-fc58edf695f7",
+            "colId": "13ca2229-dacd-49df-8a9a-1c0ae84a7e89",
+            "containerId": "",
+            "name": "Get Order by ID",
+            "url": "http://localhost:3000/order/3",
+            "method": "GET",
+            "sortNum": 80000,
+            "created": "2024-02-19T01:12:52.831Z",
+            "modified": "2024-02-19T01:13:02.150Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        }
+    ]
+}

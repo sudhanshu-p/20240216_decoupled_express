@@ -1,6 +1,6 @@
 // Internal dependencies
-const ecommerceDatabase = require("./json_implementation")
-// const ecommerceDatabase = require("./mongo_implementation")
+// const ecommerceDatabase = require("./json_implementation")
+const ecommerceDatabase = require("./mongo_implementation")
 
 const database = new ecommerceDatabase()
 
@@ -18,14 +18,15 @@ app.get("/", (req, res) => {
 })
 
 // Creating a Product ✅
-app.post('/product', (req, res) => {
+app.post('/product', async (req, res) => {
     // For create product, params contain all the product fields.
     const params = req.body
+    console.log(params)
     if (!params) {
         res.status(451).send("Params not found.")
     }
 
-    const { status, message } = database.postProduct(params)
+    const { status, message } = await database.postProduct(params)
 
     if (status % 100 === 2) {
         res.status(status).json(message)
@@ -37,12 +38,12 @@ app.post('/product', (req, res) => {
 })
 
 // Reading a Product ✅
-app.get('/product/:id', (req, res) => {
+app.get('/product/:id', async (req, res) => {
     if (!req.params.id) {
         res.status(451).send("Params not found.")
     }
 
-    const { status, message } = database.getProduct(req.params)
+    const { status, message } = await database.getProduct(req.params)
 
     if (status % 100 === 2) {
         res.status(status).json(message)
@@ -53,11 +54,11 @@ app.get('/product/:id', (req, res) => {
 })
 
 // Read all similar products ✅
-app.get('/search', (req, res) => {
+app.get('/search', async (req, res) => {
     if (!req.query.search_string) {
         res.status(451).send("Invalid parameters")
     }
-    const { status, message } = database.searchProduct(req.query)
+    const { status, message } = await database.searchProduct(req.query)
     if (status % 100 === 2) {
         res.status(status).json(message)
     }
@@ -66,7 +67,7 @@ app.get('/search', (req, res) => {
     }
 })
 
-// Updating a Product ✅
+// Updating a Product 
 app.put('/product/:id', (req, res) => {
 
     const product_id = req.params.id
@@ -85,7 +86,7 @@ app.put('/product/:id', (req, res) => {
     }
 })
 
-// Deleting a Product ✅
+// Deleting a Product 
 app.delete('/product/:id', (req, res) => {
     if (!+req.params.id) {
         res.status(451).message("Invalid parameters")
@@ -100,7 +101,7 @@ app.delete('/product/:id', (req, res) => {
     }
 })
 
-// Creating an Order and Updating a Product ✅
+// Creating an Order and Updating a Product 
 app.post('/checkout', (req, res) => {
     if (!req.body.id || !req.body.quantity) {
         res.status(451).send("Invalid Parameters")
@@ -115,9 +116,9 @@ app.post('/checkout', (req, res) => {
     }
 })
 
-// Reading an Order (Status) ✅
+// Reading an Order (Status) 
 app.get('/order/:id', (req, res) => {
-    if(!+req.params.id) {
+    if (!+req.params.id) {
         res.status(451).send("Invalid Parameters")
     }
 
@@ -131,7 +132,7 @@ app.get('/order/:id', (req, res) => {
     }
 })
 
-// Deleting an order ✅
+// Deleting an order 
 app.delete('/cancel', (req, res) => {
     if (!req.body.id) {
         res.status(451).send("Invalid parameter")
