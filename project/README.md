@@ -1,4 +1,4 @@
-## Error codes and their resemblance, for the frontend guys
+## Error codes and their resemblance
 
 // 4xx errors -> Errors because of incorrect client input, or something wrong on the client end
 // 5xx errors -> Errors in the backend server side code (Not to be shown to the clients)
@@ -14,6 +14,7 @@
 453 (/checkout) -> Order quantity cannot be negative
 453 -> Invalid data 
 454 -> New record is invalid
+455 -> Invalid Quantity
 
 500 -> Invalid root folder of the database
 501 -> Cannot manually create config files.

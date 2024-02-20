@@ -57,20 +57,84 @@ class ecommerceDatabase {
     async searchProduct(params) {
         const search_string = params.search_string
 
-        const productList = await Product.find({
+        // Check for search string in description
+        const productListByDescription = await Product.find({
             description: { $regex: new RegExp(search_string, "i") }
         })
 
-        if (productList.length === 0) {
+        // Check for search string in title
+        const productListByTitle = await Product.find({
+            title: { $regex: new RegExp(search_string, "i") }
+        })
+
+        // Check for search string in brand
+        const productListByBrand = await Product.find({
+            brand: { $regex: new RegExp(search_string, "i") }
+        })
+
+        // This list will represent their relevance.
+        // If a product is present in all 3 metadatas, it is more relevant.
+        const similarResults = {}
+        for (const product of productListByTitle) {
+            if (!similarResults[product.id]) {
+                similarResults[product.id] = 1
+                continue
+            }
+            similarResults[product.id] = similarResults[product.id] + 1
+        }
+
+        for (const product of productListByDescription) {
+            if (!similarResults[product.id]) {
+                similarResults[product.id] = 1
+                continue
+            }
+            similarResults[product.id] = similarResults[product.id] + 1
+        }
+
+        for (const product of productListByBrand) {
+            if (!similarResults[product.id]) {
+                similarResults[product.id] = 1
+                continue
+            }
+            similarResults[product.id] = similarResults[product.id] + 1
+        }
+
+        // In the case no products are found.
+        if (Object.keys(similarResults).length === 0) {
             return {
                 status: 404,
                 message: "No similar products"
             }
         }
 
+        // Now, sorting the product based on their relevance.
+        const sortedResults = Object.keys(similarResults)
+            .sort((a, b) => similarResults[b] - similarResults[a]);
+
+
+        // Sorting was done only via keys. Retriving the entire product now.
+        const sortedData = []
+        for (let index = 0; index < sortedResults.length; index++) {
+            // We don't know which array has the result, so loop through all.
+            let searchedProduct = productListByTitle
+                .filter((product) => product.id === +sortedResults[index])
+
+            if (searchedProduct.length === 0) {
+                searchedProduct = productListByDescription
+                    .filter((product) => product.id === +sortedResults[index])
+            }
+
+            if (searchedProduct.length === 0) {
+                searchedProduct = productListByBrand
+                    .filter((product) => product.id === +sortedResults[index])
+            }
+
+            sortedData.push(searchedProduct[0])
+        }
+
         return {
             status: 200,
-            message: productList
+            message: sortedData
         }
     }
 
@@ -186,6 +250,7 @@ class ecommerceDatabase {
      */
     async deleteOrder(params) {
         const order = await Order.findOne({ id: params.id })
+        // If the order is not found
         if (!order) {
             return {
                 status: 404,
@@ -193,11 +258,37 @@ class ecommerceDatabase {
             }
         }
 
-        await Product.findOneAndDelete({ id: params.id })
+        // If the order is already cancelld
+        if (order.status === "Cancelled") {
+            return {
+                status: 452,
+                message: "Order is already cancelled"
+            }
+        }
+
+        // Save the order
+        order.status = "Cancelled"
+        await order.save()
+
+        // Updating the stocks of the product
+        const product_id = order.product_id
+        const product = await Product.findOne({ id: product_id })
+
+        if (!product) {
+            // This is not an error, the product might deleted after the order
+            // creation. The frontend doesn't see it any different than normal
+            return {
+                status: 202,
+                message: "Order cancelled successfully"
+            }
+        }
+
+        product.stock = product.stock + order.product_quantity
+        await product.save()
 
         return {
             status: 202,
-            message: "Deleted successfully"
+            message: "Order cancelled successfully"
         }
     }
 }
